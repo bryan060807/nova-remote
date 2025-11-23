@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  server:
+    build:
+      context: ./server
+    container_name: nova-remote-server
+    ports:
+      - "5000:5000"
+    networks:
+      - nova_network
+
+  client:
+    build:
+      context: ./client
+    container_name: nova-remote-client
+    networks:
+      - nova_network
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nova-remote-proxy
+    depends_on:
+      - client
+      - server
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - nova_network
+
+networks:
+  nova_network:
+    driver: bridge

@@ -1,0 +1,68 @@
+/* index.css - Global and Tailwind styles for Nova Remote */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🌙 Global Styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #0a0a0a;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+button {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 🎨 Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b3b3b;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ✨ Custom Utility Classes */
+.bg-gradient-dark {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(0, 123, 255, 0.8);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.4);
+}
+
+/* 🎤 Voice Button Pulse Animation */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 1);
+  }
+}
+
+.mic-pulse {
+  animation: pulse 2s infinite ease-in-out;
+}
