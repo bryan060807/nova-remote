@@ -1,31 +1,63 @@
+// server/server.js — Nova Remote Backend
+// Production-ready Express server with WebSocket for TV commands
+
 import express from "express";
-import cors from "cors";
-import { createServer } from "http";
+import http from "http";
 import { Server } from "socket.io";
+import cors from "cors";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const app = express();
-app.use(cors());
+const server = http.createServer(app);
+
+// Allow CORS from Vercel and localhost
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://nova-remote.vercel.app"
+    ],
+    methods: ["GET", "POST"],
+  })
+);
+
 app.use(express.json());
 
-// Basic API test route
-app.get("/api/status", (req, res) => {
-  res.json({ message: "Nova Remote server online 🚀" });
+// Initialize WebSocket
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
 });
 
-// WebSocket setup
-const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: "*" } });
-
+// Basic WebSocket logic
 io.on("connection", (socket) => {
-  console.log("🔗 Client connected:", socket.id);
-  socket.on("voiceCommand", (cmd) => console.log("🎙️ Voice command:", cmd));
-  socket.on("disconnect", () => console.log("❌ Client disconnected"));
+  console.log(`🔗 WebSocket connected: ${socket.id}`);
+
+  socket.on("sendCommand", (command) => {
+    console.log("📺 TV Command received:", command);
+    // Here’s where you’d connect to the LG TV WebSocket API
+    io.emit("commandResponse", { success: true, command });
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`❌ WebSocket disconnected: ${socket.id}`);
+  });
 });
 
-const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+// Basic health check route
+app.get("/", (req, res) => {
+  res.send("✅ Nova Remote Server is running!");
+});
 
+// Start the server (Vercel ignores .listen(), but locally it’s needed)
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+
+// Export default for Vercel serverless function compatibility
 export default app;
