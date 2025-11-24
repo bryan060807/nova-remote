@@ -1,13 +1,20 @@
 {
   "name": "nova-remote",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "scripts": {
+    "dev": "npm run dev --prefix client",
     "build": "npm run build --prefix client",
-    "start": "node server/server.js",
-    "dev": "npm run dev --prefix client"
+    "start": "node api/server.js",
+    "serve:local": "node api/server.js"
   },
   "engines": {
     "node": ">=18.x"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
   }
 }
