@@ -1,8 +1,5 @@
-// tailwind.config.js - Tailwind CSS configuration for Nova Remote
-// Defines custom theme, color palette, animations, and dark mode settings
-
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     './index.html',
     './src/**/*.{js,jsx,ts,tsx}',
@@ -32,5 +29,5 @@ export default {
     },
   },
   plugins: [],
-  darkMode: 'media', // or 'class'
+  darkMode: 'media',
 };
