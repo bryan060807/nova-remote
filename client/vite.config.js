@@ -5,7 +5,10 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
+  base: "/", // ✅ ensures assets load correctly on Vercel
+
   plugins: [react()],
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -14,6 +17,7 @@ export default defineConfig({
       "@utils": path.resolve(__dirname, "./src/utils"),
     },
   },
+
   server: {
     port: 5173,
     open: true,
@@ -26,6 +30,7 @@ export default defineConfig({
       },
     },
   },
+
   build: {
     outDir: "dist",
     sourcemap: false,
@@ -36,6 +41,7 @@ export default defineConfig({
       },
     },
   },
+
   preview: {
     port: 4173,
     open: true,
