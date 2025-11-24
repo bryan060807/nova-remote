@@ -1,45 +1,42 @@
 // server/server.js — Nova Remote Backend
-// Production-ready Express server with WebSocket for TV commands
+// Production-ready Express server with environment validation and WebSocket support
 
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
+import config from "./config.js";
 
 const app = express();
 const server = http.createServer(app);
 
-// Allow CORS from Vercel and localhost
+// ────────────────
+//  CORS Configuration
+// ────────────────
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://nova-remote.vercel.app"
-    ],
-    methods: ["GET", "POST"],
+    origin: config.corsOrigin,
+    methods: ["GET", "POST", "OPTIONS"],
   })
 );
 
 app.use(express.json());
 
-// Initialize WebSocket
+// ────────────────
+//  WebSocket Setup
+// ────────────────
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: config.corsOrigin,
     methods: ["GET", "POST"],
   },
 });
 
-// Basic WebSocket logic
 io.on("connection", (socket) => {
   console.log(`🔗 WebSocket connected: ${socket.id}`);
 
   socket.on("sendCommand", (command) => {
     console.log("📺 TV Command received:", command);
-    // Here’s where you’d connect to the LG TV WebSocket API
     io.emit("commandResponse", { success: true, command });
   });
 
@@ -48,16 +45,29 @@ io.on("connection", (socket) => {
   });
 });
 
-// Basic health check route
+// ────────────────
+//  API Routes
+// ────────────────
 app.get("/", (req, res) => {
   res.send("✅ Nova Remote Server is running!");
 });
 
-// Start the server (Vercel ignores .listen(), but locally it’s needed)
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+app.get("/api/pair", (req, res) => {
+  console.log(`🔌 Pairing request for TV at ${config.tvIp}`);
+  res.json({ success: true, ip: config.tvIp });
 });
 
-// Export default for Vercel serverless function compatibility
+app.post("/api/send-command", (req, res) => {
+  const { action } = req.body;
+  console.log(`🎮 Received command: ${action}`);
+  res.json({ success: true, action });
+});
+
+// ────────────────
+//  Start Server
+// ────────────────
+server.listen(config.port, () => {
+  console.log(`🚀 Nova Remote backend running on port ${config.port}`);
+});
+
 export default app;

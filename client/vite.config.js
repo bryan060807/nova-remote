@@ -1,49 +1,55 @@
-// vite.config.js — Production configuration for Nova Remote client
-
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
-export default defineConfig({
-  base: "/", // ✅ ensures assets load correctly on Vercel
+export default defineConfig(({ mode }) => {
+  // Load env variables based on mode (development / production)
+  const env = loadEnv(mode, process.cwd(), "VITE_");
 
-  plugins: [react()],
+  // Ensure required variables exist
+  if (!env.VITE_API_URL) {
+    throw new Error("❌ Missing required environment variable: VITE_API_URL");
+  }
 
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "@components": path.resolve(__dirname, "./src/components"),
-      "@pages": path.resolve(__dirname, "./src/pages"),
-      "@utils": path.resolve(__dirname, "./src/utils"),
+  return {
+    base: "/",
+    plugins: [react()],
+    define: {
+      __APP_ENV__: env.VITE_API_URL, // optional global usage
     },
-  },
-
-  server: {
-    port: 5173,
-    open: true,
-    host: true,
-    proxy: {
-      "/api": {
-        target: "http://localhost:5000",
-        changeOrigin: true,
-        secure: false,
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+        "@components": path.resolve(__dirname, "./src/components"),
+        "@pages": path.resolve(__dirname, "./src/pages"),
+        "@utils": path.resolve(__dirname, "./src/utils"),
       },
     },
-  },
-
-  build: {
-    outDir: "dist",
-    sourcemap: false,
-    minify: "esbuild",
-    rollupOptions: {
-      output: {
-        manualChunks: undefined,
+    server: {
+      port: 5173,
+      open: true,
+      host: true,
+      proxy: {
+        "/api": {
+          target: env.VITE_API_URL || "http://localhost:5000",
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
-  },
-
-  preview: {
-    port: 4173,
-    open: true,
-  },
+    build: {
+      outDir: "dist",
+      sourcemap: false,
+      minify: "esbuild",
+      rollupOptions: {
+        output: {
+          manualChunks: undefined,
+        },
+      },
+    },
+    preview: {
+      port: 4173,
+      open: true,
+    },
+  };
 });

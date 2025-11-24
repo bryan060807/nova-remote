@@ -13,11 +13,16 @@ export default function NovaRemote() {
   const [tvIP] = useState('192.168.12.81');
   const [connected, setConnected] = useState(false);
 
+  // ✅ Automatically switch between local and production API
+  const API_BASE_URL = import.meta.env.PROD
+    ? `${window.location.origin}/api`
+    : 'http://localhost:5000/api';
+
   // Connect to backend and pair automatically
   useEffect(() => {
     async function connectToBackend() {
       try {
-        const pair = await fetch(`http://localhost:5000/api/pair`);
+        const pair = await fetch(`${API_BASE_URL}/pair`);
         const result = await pair.json();
         if (result.success) {
           setFeedback(`Paired successfully with LG TV at ${tvIP}`);
@@ -31,7 +36,7 @@ export default function NovaRemote() {
       }
     }
     connectToBackend();
-  }, [tvIP]);
+  }, [tvIP, API_BASE_URL]);
 
   // Initialize Web Speech API
   useEffect(() => {
@@ -85,7 +90,7 @@ export default function NovaRemote() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/send-command', {
+      const response = await fetch(`${API_BASE_URL}/send-command`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
